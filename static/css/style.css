@@ -96,10 +96,12 @@ main {
 
 .nav-link {
     color: var(--text-color) !important;
+    transition: transform 0.2s, opacity 0.2s; /* Added animation for menu items */
 }
 
 .nav-link:hover {
     opacity: 0.8;
+    transform: translateY(-2px); /* Added hover animation */
 }
 
 /* Update navbar styles for desktop and mobile */
