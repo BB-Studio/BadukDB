@@ -278,6 +278,29 @@ footer p {
     .flex-column.flex-md-row > .col-12 {
         margin-bottom: 0.25rem;
     }
+    /* Mobile footer adjustments */
+    footer {
+        padding: 0;
+        line-height: 1.2;
+    }
+    footer .container {
+        padding-top: 0.25rem;
+        padding-bottom: 0.25rem;
+    }
+
+    .footer-icons {
+        justify-content: center;
+        margin-top: 0.25rem;
+    }
+
+    footer p {
+        text-align: center;
+        margin-bottom: 0.25rem;
+    }
+
+    .flex-column.flex-md-row > .col-12 {
+        margin-bottom: 0.15rem;
+    }
 }
 
 /* Responsive */
@@ -309,6 +332,18 @@ footer p {
 
     .filter-group {
         width: 100%;
+    }
+    /* Mobile menu alignment */
+    .navbar-nav {
+        text-align: right;
+    }
+
+    .nav-item {
+        margin: 0.25rem 0;
+    }
+
+    .nav-link {
+        padding-right: 0;
     }
 }
 

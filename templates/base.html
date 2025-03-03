@@ -6,6 +6,14 @@
     <title>{% block title %}Baduk Lectures - Free Lectures Database for Baduk/Weiqi/Go Game{% endblock %}</title>
     <meta name="description" content="Free Lectures Database for Baduk/Weiqi/Go Game. Learn from curated video lectures on various topics and levels.">
 
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <meta name="theme-color" content="#1a1a1a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Baduk Lectures">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='images/logo.svg') }}">
+
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/favicon.svg') }}">
 

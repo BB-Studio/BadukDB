@@ -1,0 +1,17 @@
+{
+  "name": "Baduk Lectures",
+  "short_name": "Baduk",
+  "description": "Free Lectures Database for Baduk/Weiqi/Go Game",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#1a1a1a",
+  "icons": [
+    {
+      "src": "/static/images/logo.svg",
+      "sizes": "40x40",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
