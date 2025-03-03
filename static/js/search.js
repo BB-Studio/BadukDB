@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const topicFilter = document.getElementById('topic-filter');
     const tagFilter = document.getElementById('tag-filter');
     const rankFilter = document.getElementById('rank-filter');
-    //const sortSelect = document.getElementById('sort-select'); // Removed sortSelect
     const resultsContainer = document.getElementById('results-container');
     const loadMoreBtn = document.getElementById('load-more');
 
@@ -22,6 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
         currentPage = 1;
         resultsContainer.innerHTML = '';
         loadMoreBtn.style.display = 'none';
+        isLoading = false;  // Reset loading state
     }
 
     // Search function
@@ -37,7 +37,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const selectedTopic = topicFilter.value;
         const selectedTag = tagFilter.value;
         const selectedRank = rankFilter.value;
-        //const sortBy = sortSelect.value; // Removed sortBy
 
         let url = `/api/search?page=${currentPage}&q=${encodeURIComponent(searchQuery)}&sort=-publish_date`; //Always sort by newest
 
@@ -66,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.json();
             })
             .then(data => {
-                // Remove loading indicator if it's the first page
+                // Always clear loading indicator
                 if (currentPage === 1) {
                     resultsContainer.innerHTML = '';
                 }
@@ -74,6 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.lectures.length === 0 && currentPage === 1) {
                     resultsContainer.innerHTML = '<div class="col-12 text-center my-5"><p>No lectures found matching your criteria.</p></div>';
                     loadMoreBtn.style.display = 'none';
+                    isLoading = false;  // Reset loading state
                     return;
                 }
 
@@ -110,18 +110,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
 
                 // Show/hide load more button
-                if (data.has_next) {
-                    loadMoreBtn.style.display = 'inline-block';
-                } else {
-                    loadMoreBtn.style.display = 'none';
-                }
+                loadMoreBtn.style.display = data.has_next ? 'inline-block' : 'none';
 
                 // Update UI state
                 isLoading = false;
             })
             .catch(error => {
+                console.error('Search error:', error);
                 resultsContainer.innerHTML = '<div class="col-12 text-center my-5"><p>An error occurred while fetching results. Please try again.</p></div>';
-                isLoading = false;
+                loadMoreBtn.style.display = 'none';
+                isLoading = false;  // Reset loading state even on error
             });
     }
 
@@ -130,7 +128,6 @@ document.addEventListener('DOMContentLoaded', function() {
     topicFilter.addEventListener('change', () => performSearch(true));
     tagFilter.addEventListener('change', () => performSearch(true));
     rankFilter.addEventListener('change', () => performSearch(true));
-    //sortSelect.addEventListener('change', () => performSearch(true)); //Removed sortSelect listener
 
     loadMoreBtn.addEventListener('click', () => {
         currentPage++;
