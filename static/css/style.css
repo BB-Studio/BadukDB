@@ -72,6 +72,17 @@ main {
 
 .navbar-collapse {
     display: flex !important;
+    transition: height 0.2s ease-in-out;
+}
+
+.navbar-collapse.collapsing {
+    height: 0;
+    overflow: hidden;
+    transition: height 0.2s ease;
+}
+
+.navbar-collapse.show {
+    height: auto;
 }
 
 .navbar-nav {
@@ -278,6 +289,19 @@ footer p {
         width: 100%;
     }
 }
+
+/* Footer responsive styles */
+@media (max-width: 768px) {
+    .footer-icons {
+        justify-content: center;
+        margin-top: 1rem;
+    }
+
+    footer p {
+        text-align: center;
+    }
+}
+
 
 /* Video modal */
 .video-modal {
