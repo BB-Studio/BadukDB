@@ -36,20 +36,18 @@ def api_search():
         except (ValueError, TypeError):
             page = 1
             per_page = 12
-            
+
         query = request.args.get('q', '')
         topic_ids = request.args.getlist('topics[]')
         tag_ids = request.args.getlist('tags[]')
         rank_id = request.args.get('rank')
-        sort_by = request.args.get('sort', 'date')
-        if sort_by not in ['date', 'rank']:
-            sort_by = 'date'
 
         # Build efficient query with eager loading
         lectures_query = Lecture.query.options(
             db.joinedload(Lecture.topics),
-            db.joinedload(Lecture.tags)
-        )
+            db.joinedload(Lecture.tags),
+            db.joinedload(Lecture.rank)
+        ).distinct()
 
         # Apply filters
         if query:
@@ -57,57 +55,41 @@ def api_search():
 
         # More efficient topic filtering
         if topic_ids and any(topic_ids):
-            # Filter only non-empty topic IDs
             valid_topic_ids = [tid for tid in topic_ids if tid]
             if valid_topic_ids:
                 lectures_query = lectures_query.join(Lecture.topics).filter(Topic.id.in_(valid_topic_ids))
 
         # More efficient tag filtering
         if tag_ids and any(tag_ids):
-            # Filter only non-empty tag IDs
             valid_tag_ids = [tid for tid in tag_ids if tid]
             if valid_tag_ids:
                 lectures_query = lectures_query.join(Lecture.tags).filter(Tag.id.in_(valid_tag_ids))
 
+        # Apply rank filter last to avoid interference with other joins
         if rank_id:
-            lectures_query = lectures_query.filter_by(rank_id=rank_id)
+            lectures_query = lectures_query.filter(Lecture.rank_id == rank_id)
 
-        # Apply sorting
-        if sort_by == 'date':
-            lectures_query = lectures_query.order_by(Lecture.publish_date.desc())
-        elif sort_by == 'rank':
-            lectures_query = lectures_query.order_by(Lecture.rank_id)
+        # Always sort by newest
+        lectures_query = lectures_query.order_by(Lecture.publish_date.desc())
 
         # Add pagination
         pagination = lectures_query.paginate(page=page, per_page=per_page, error_out=False)
         lectures = pagination.items
 
-        # Cache rank lookups
-        rank_cache = {}
-        
         # Process results
         lecture_data = []
-        for l in lectures:
-            # Use cached rank lookup
-            if l.rank_id:
-                if l.rank_id not in rank_cache:
-                    rank = Rank.query.get(l.rank_id)
-                    rank_cache[l.rank_id] = rank.name if rank else None
-                rank_name = rank_cache[l.rank_id]
-            else:
-                rank_name = None
-                
+        for lecture in lectures:
             lecture_data.append({
-                'id': l.id,
-                'title': l.title,
-                'youtube_id': l.youtube_id,
-                'thumbnail_url': l.thumbnail_url,
-                'publish_date': l.publish_date.isoformat(),
-                'topics': [t.name for t in l.topics],
-                'tags': [t.name for t in l.tags],
-                'rank': rank_name
+                'id': lecture.id,
+                'title': lecture.title,
+                'youtube_id': lecture.youtube_id,
+                'thumbnail_url': lecture.thumbnail_url,
+                'publish_date': lecture.publish_date.isoformat(),
+                'topics': [t.name for t in lecture.topics],
+                'tags': [t.name for t in lecture.tags],
+                'rank': lecture.rank.name if lecture.rank else None
             })
-            
+
         return jsonify({
             'lectures': lecture_data,
             'has_next': pagination.has_next,
