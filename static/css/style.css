@@ -389,6 +389,7 @@ footer p {
 }
 /* These variables are now consolidated at the top */
 
+
 /* Main styles */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -558,3 +559,22 @@ body {
     }
 }
 /* Dark theme is forced via JavaScript */
+
+/* Update navbar styles for desktop and mobile */
+.navbar-brand-container {
+    display: flex;
+    align-items: center;
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    color: var(--navbar-brand-color) !important;
+}
+
+.navbar-brand img {
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+}
