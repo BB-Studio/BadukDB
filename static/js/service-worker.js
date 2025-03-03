@@ -1,6 +1,5 @@
 const CACHE_NAME = 'baduk-lectures-v1';
 const STATIC_RESOURCES = [
-  '/',
   '/static/css/style.css',
   '/static/js/theme.js',
   '/static/js/search.js',
@@ -13,7 +12,7 @@ const STATIC_RESOURCES = [
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css'
 ];
 
-// Cache static resources during installation
+// Cache only static resources
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -21,43 +20,26 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Implement stale-while-revalidate strategy
+// Only cache successful responses
 self.addEventListener('fetch', (event) => {
-  const requestURL = new URL(event.request.url);
-
-  // Handle API requests
-  if (requestURL.pathname.startsWith('/api/')) {
-    event.respondWith(
-      caches.open(CACHE_NAME).then((cache) =>
-        fetch(event.request)
-          .then((response) => {
-            cache.put(event.request, response.clone());
-            return response;
-          })
-          .catch(() => cache.match(event.request))
-      )
-    );
+  // Skip caching for API requests
+  if (event.request.url.includes('/api/')) {
     return;
   }
 
-  // Handle static resources and HTML pages
   event.respondWith(
     caches.match(event.request)
       .then((cachedResponse) => {
-        const fetchPromise = fetch(event.request)
-          .then((networkResponse) => {
-            // Cache new responses for next time
-            if (networkResponse.ok) {
-              const responseToCache = networkResponse.clone();
+        return cachedResponse || fetch(event.request)
+          .then((response) => {
+            // Cache only successful static resource responses
+            if (response.ok && STATIC_RESOURCES.some(resource => event.request.url.includes(resource))) {
+              const responseToCache = response.clone();
               caches.open(CACHE_NAME)
                 .then((cache) => cache.put(event.request, responseToCache));
             }
-            return networkResponse;
-          })
-          .catch(() => cachedResponse);
-
-        // Return cached response immediately if available
-        return cachedResponse || fetchPromise;
+            return response;
+          });
       })
   );
 });
